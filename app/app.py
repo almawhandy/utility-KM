@@ -4,7 +4,9 @@ from flask_restx import Api, Resource, fields
 from owlready2 import *
 import io
 import pandas as pd
+import codecs
 import base64
+import os
 from TestConcetti.testConcetti import TestOntology
 from TestEntita.testEntita import TestEntities
 from Estrazione.extract_info import ScriptEstrazione
@@ -19,12 +21,17 @@ app = Flask(__name__)
 def extract_info():
     se = ScriptEstrazione()
     ontology_base64 = request.get_json()['ontology']
-    print(ontology_base64)
+    pad = len(ontology_base64) % 4
+    while pad != 0:
+        ontology_base64 += "="
+        pad -= 1
     decrypted_onto = base64.b64decode(ontology_base64)
-    #onto_toread = io.BytesIO()
-    #onto_toread.write(decrypted_onto)
-    #onto_toread.seek(0)
-    #onto = get_ontology(onto_toread).load() # da testare
+    
+    owl_argument = open("test.owl", "wb")
+    owl_argument.write(decrypted_onto)
+    onto = get_ontology(owl_argument.name).load()
+    owl_filepath = owl_argument.name.split("owl")[0]
+
     try:
         concepts_base64 = request.get_json()['conceptsList']
         decrypted_concepts = base64.b64decode(concepts_base64)
@@ -32,8 +39,14 @@ def extract_info():
     except:
         text_argument = []
     lista_nuovi_concetti = se.read_concepts(text_argument)
-    dict_concetti = se.from_concept_2_dict(lista_nuovi_concetti, onto)
-    #se.write_excel(dict_concetti, excel_argument))
+    dict_concetti = se.from_concept_2_dict(lista_nuovi_concetti, onto, owl_filepath)
+    excel_argument = "test.xlsx"
+    excel_base64 = se.write_excel(dict_concetti, excel_argument)
+    
+    owl_argument.close()
+    os.remove(owl_argument.name)
+    
+    return excel_base64
 
 @app.route("/testConcetti", methods=['GET', 'POST'])
 def testConcetti():

@@ -2,6 +2,8 @@ from owlready2 import *
 import xlsxwriter 
 import re
 import sys
+import os
+import base64
 
 
 class ScriptEstrazione:
@@ -92,6 +94,13 @@ class ScriptEstrazione:
                 worksheet.write(row, col + 2, str(temp_query), cell_format)
                 row += 1
             workbook.close()
+            excel_file = open(excel_filepath, 'rb')
+            excel_base64 = base64.b64encode(excel_file.read())
+            excel_file.close()
+            os.remove(excel_filepath)
             print("Fine scrittura file Excel")
-        except:
-            print("Errore durante la scrittura del file Excel")                      
+            return excel_base64
+        except Exception as ex:
+            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+            message = template.format(type(ex).__name__, ex.args)
+            raise Exception(message)
