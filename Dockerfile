@@ -4,5 +4,6 @@ WORKDIR /app
 ADD requirements.txt /app
 RUN pip3 install -r requirements.txt
 ADD . /app
+RUN chmod +x ./entrypoint.sh
 EXPOSE 5000
-ENTRYPOINT ["python", "app/app.py"]
+ENTRYPOINT ["sh", "entrypoint.sh"]
