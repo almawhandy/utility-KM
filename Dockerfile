@@ -2,9 +2,9 @@
 FROM python:3.9-slim
 
 # set work directory
-ENV CONTAINER_HOME=/var/www
-ADD . $CONTAINER_HOME
-WORKDIR $CONTAINER_HOME
+ENV CONTAINER_HOME=/root
+ADD app $CONTAINER_HOME
+WORKDIR $CONTAINER_HOME/app
 
 # install dependencies
 RUN pip3 install -r $CONTAINER_HOME/requirements.txt
