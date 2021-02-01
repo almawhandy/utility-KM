@@ -15,7 +15,7 @@ on:
 
 env:
   # TODO: change variable to your image's name.
-  IMAGE_NAME : simple-flask
+  IMAGE_NAME : utility-km
 
 jobs:
   # Run tests
