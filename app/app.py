@@ -1,10 +1,8 @@
 from flask import Flask, request
 
-from flask_restx import Api, Resource, fields
 from owlready2 import *
 import io
 import pandas as pd
-import codecs
 import base64
 import os
 from app.TestConcetti.testConcetti import TestOntology
