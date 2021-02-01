@@ -3,7 +3,7 @@ FROM python:3.9-slim
 
 # set work directory
 ENV CONTAINER_HOME=/root
-ADD app $CONTAINER_HOME
+ADD . $CONTAINER_HOME
 WORKDIR $CONTAINER_HOME/app
 
 # install dependencies
