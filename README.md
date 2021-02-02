@@ -8,6 +8,14 @@ Utility KM comprende 3 servizi di supporto :
 
 # Estrazione label e query
 
+INPUT : Il servizio può essere richiamato al path /extractInfo ed accetta due parametri da inserire nel body con le chiavi ontology e conceptsList. Il valore della chiave ontology deve essere il base64 dell'ontologia da analizzare mentre il valore della chiave conceptsList deve essere il base64 della lista di concetti da ricercare. Il parametro conceptsList non è obbligatorio e può essere mancante. In tal caso, verranno analizzati tutti i concetti presenti all'interno dell'ontologia. 
+
+OUTPUT : L'output di questo servizio sarà un base 64 di un file excel che avrà le seguenti colonne :
+
+- CONCETTO : nome identificativo del concetto
+- LISTA DI LABEL : Lista di label associate al concetto
+- QUERY : Query relativa al concetto
+
 # Test Entità
 
 INPUT : Il seguente servizio può essere richiamato al path /testEntita ed accetta due parametri da inserire nel body con le chiavi base64 ed endpoint. Il valore della chiave base64 deve corrispondere al base64 del file excel da analizzare mentre il valore endpoint deve corrispondere all'endpoint dove sarà invocato il servizio di analyzedDocument. 
