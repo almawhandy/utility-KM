@@ -26,8 +26,11 @@ class TestOntology:
             response = session.post(url=url, headers=headers, json = params)
             print('FINE invocazione servizio AnalyzedDocument')
             return response.json()
-        except:
-            raise Exception('Errore durante l\'invocazione del servizio AnalyzedDocument')
+        except Exception as ex:
+            print("Errore durante l\'invocazione del servizio AnalyzedDocument")
+            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+            message = template.format(type(ex).__name__, ex.args)
+            raise Exception(message)
     
     def check_responses(self, concepts, sentences, ontologies, credentials, endpoint):
         try:
@@ -46,5 +49,8 @@ class TestOntology:
                     check_responses.append('KO')
             print('FINE controllo concetti')
             return check_responses
-        except:
-            raise Exception('Errore durante il controllo dei concetti')
+        except Exception as ex:
+            print("Errore durante il controllo dei concetti")
+            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+            message = template.format(type(ex).__name__, ex.args)
+            raise Exception(message)

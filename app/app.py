@@ -35,15 +35,14 @@ def extract_info():
         decrypted_concepts = base64.b64decode(concepts_base64)
         text_argument = decrypted_concepts.decode('utf-8')
     except:
-        text_argument = []
+        text_argument = ""
+        
     lista_nuovi_concetti = se.read_concepts(text_argument)
     dict_concetti = se.from_concept_2_dict(lista_nuovi_concetti, onto, owl_filepath)
     excel_argument = "test.xlsx"
     excel_base64 = se.write_excel(dict_concetti, excel_argument)
-    
     owl_argument.close()
     os.remove(owl_argument.name)
-    
     return excel_base64
 
 @app.route("/testConcetti", methods=['GET', 'POST'])

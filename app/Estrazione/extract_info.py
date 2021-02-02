@@ -43,8 +43,11 @@ class ScriptEstrazione:
                 lista_nuovi_concetti.append(elem.strip())
             print("Fine lettura concetti")
             return lista_nuovi_concetti
-        except:
+        except Exception as ex:
             print("Errore durante la lettura dei concetti")
+            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+            message = template.format(type(ex).__name__, ex.args)
+            raise Exception(message)
     
     
     def from_concept_2_dict(self, lista_nuovi_concetti, onto, owl_filepath):
@@ -65,8 +68,11 @@ class ScriptEstrazione:
                 dict_concetti = se.update_dict(dict_concetti, nested_concepts, onto, owl_filepath)
             print("Fine estrazione labels e query")
             return dict_concetti
-        except:
+        except Exception as ex:
             print("Errore durante l'estrazione di labels e query")
+            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+            message = template.format(type(ex).__name__, ex.args)
+            raise Exception(message)
     
     def write_excel(self, dict_concetti, excel_filepath):
         try:
