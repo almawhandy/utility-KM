@@ -2,11 +2,8 @@
 FROM python:3.9-slim
 
 # set work directory
-ENV CONTAINER_HOME=/root
-ADD . $CONTAINER_HOME
-WORKDIR $CONTAINER_HOME/app
-
+WORKDIR usr/src/flask_app
+COPY requirements.txt .
 # install dependencies
-RUN pip3 install -r $CONTAINER_HOME/requirements.txt
-
+RUN pip3 install --no-cache-dir -r requirements.txt
 COPY . .
