@@ -8,3 +8,5 @@ WORKDIR $CONTAINER_HOME/app
 
 # install dependencies
 RUN pip3 install -r $CONTAINER_HOME/requirements.txt
+
+COPY . .

@@ -5,9 +5,9 @@ import io
 import pandas as pd
 import base64
 import os
-from app.TestConcetti.testConcetti import TestOntology
-from app.TestEntita.testEntita import TestEntities
-from app.Estrazione.extract_info import ScriptEstrazione
+from TestConcetti.testConcetti import TestOntology
+from TestEntita.testEntita import TestEntities
+from Estrazione.extract_info import ScriptEstrazione
 
 
 app = Flask(__name__)
