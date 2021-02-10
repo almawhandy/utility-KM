@@ -79,3 +79,5 @@ jobs:
           
           docker tag $FLASK_IMAGE_NAME $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
+      - name: Check path
+        run: pwd
