@@ -15,7 +15,8 @@ on:
 
 env:
   # TODO: change variable to your image's name.
-  IMAGE_NAME : utility-km
+  FLASK_IMAGE_NAME : flask-app
+  NGINX_IMAGE_NAME : nginx-app 
 
 jobs:
   # Run tests
@@ -26,13 +27,16 @@ jobs:
     steps:
       - uses : actions/checkout@v2
       
+      - name : Set working directory
+        run : cd flask_app
+      
       - name : Run tests 
         run : |
           if [ -f docker-compose.test.yml ]; then
             docker-compose --file docker-compose.test.yml build
             docker-compose --file docker-compose.test.yml run sut
           else
-            docker build . --file flask_app/Dockerfile
+            docker build . --file Dockerfile
           fi
           
   # Push image to GitHub packages
@@ -48,14 +52,14 @@ jobs:
       - uses : actions/checkout@v2
       
       - name : Build image 
-        run : docker build . --file flask_app/Dockerfile --tag $IMAGE_NAME
+        run : docker build . --file Dockerfile --tag $FLASK_IMAGE_NAME
       
       - name : Log into registry
         run : echo "${{ secrets.CR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       
       - name: Push image
         run: |
-          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$FLASK_IMAGE_NAME
           
           # Change all uppercase to lowercase
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
@@ -72,5 +76,5 @@ jobs:
           echo IMAGE_ID=$IMAGE_ID
           echo VERSION=$VERSION
           
-          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
+          docker tag $FLASK_IMAGE_NAME $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
