@@ -40,27 +40,44 @@ h1, h2, h3, h4, h5, h6 {
         <br>
         <br>
         <center>
-            <form action="/action_page.php">
-                <label>LISTA CONCETTI :<input type="file" id="conceptsList" name="listaConcetti" accept=".txt" ></label>
-                <br>
-                <br>
-                <label>ONTOLOGIA :<input type="file" id="ontology" name="ontologia" accept=".owl" required></label>
-                <br>
-                <br>
-                <input type="submit">
-            </form>
-            <br>
-            <br>
-            <br>
-            <button id="extractInfoExcel" name="risultatoEstrazioneInfO" onclick="">Download Excel File</button>
-            <script>
-                if (new Date().getHours() < 12) {
-                    document.getElementById("extractInfoExcel").hidden = true;
-                }
-            </script>
-           
+          <label>LISTA CONCETTI :<input type="file" id="conceptsList" name="listaConcetti" accept=".txt" ></label>
+          <br>
+          <br>
+          <label>ONTOLOGIA :<input type="file" id="ontology" name="ontologia" accept=".owl" required></label>
+          <br>
+          <br>
+          <button id="callExtractInfo" name="estrazioneInfoService" onclick="extractInfo()">Estrai Label e Query</button>
+          <br>
+          <br>
+          <br>
+          <button id="extractInfoExcel" name="risultatoEstrazioneInfO" hidden>Download Excel File</button>
         </center>
     </div>
+
+    <script>
+      function extractInfo() {
+        var ontoReader = new FileReader();
+        var onto = document.getElementById("ontology").files;
+        ontoReader.onloadend = function () {
+          var ontoBase64 = ontoReader.result.split(",")[1];
+          console.log(ontoBase64);
+        }
+        ontoReader.readAsDataURL(onto[0]);
+        var concepts = document.getElementById("conceptsList").files;
+        var conceptsReader = new FileReader();
+        conceptsReader.onloadend = function () {
+          var conceptsBase64 = conceptsReader.result.split(",")[1];
+          console.log(conceptsBase64);
+        }
+        if(typeof(concepts[0]) !== "undefined"){
+          conceptsReader.readAsDataURL(concepts[0]);
+        }
+        document.getElementById("extractInfoExcel").hidden = false;
+      }
+
+
+      
+    </script>
 
     <div class="w3-col m6 w3-padding-large">
       <h1 class="w3-center">Estrazione Info</h1><br>
