@@ -52,18 +52,18 @@ jobs:
     steps: 
       - uses : actions/checkout@v2
       
-      - name : Build image 
-        run : cd flask_app && docker build . --file Dockerfile --tag $FLASK_IMAGE_NAME
-      
       - name : Log into registry
         run : echo "${{ secrets.CR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+    
+      - name : Build Flask image 
+        run : cd flask_app && docker build . --file Dockerfile --tag $FLASK_IMAGE_NAME
       
-      - name: Push image
+      - name: Push Flask image
         run: |
-          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$FLASK_IMAGE_NAME
+          FLASK_IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$FLASK_IMAGE_NAME
           
           # Change all uppercase to lowercase
-          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          FLASK_IMAGE_ID=$(echo $FLASK_IMAGE_ID | tr '[A-Z]' '[a-z]')
           
           # Strip git ref prefix from version
           VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
@@ -74,10 +74,33 @@ jobs:
           # Use Docker `latest` tag convention
           [ "$VERSION" == "main" ] && VERSION=latest
           
-          echo IMAGE_ID=$IMAGE_ID
+          echo FLASK_IMAGE_ID=$FLASK_IMAGE_ID
           echo VERSION=$VERSION
           
-          docker tag $FLASK_IMAGE_NAME $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
-      - name: Check path
-        run: pwd
+          docker tag $FLASK_IMAGE_NAME $FLASK_IMAGE_ID:$VERSION
+          docker push $FLASK_IMAGE_ID:$VERSION
+        
+      - name: Build Nginx image
+        run: cd nginx && docker build . --file Dockerfile --tag $NGINX_IMAGE_NAME
+      
+      - name: Push Nginx image
+        run: |
+          NGINX_IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$NGINX_IMAGE_NAME
+          
+          # Change all uppercase to lowercase
+          NGINX_IMAGE_ID=$(echo $NGINX_IMAGE_ID | tr '[A-Z]' '[a-z]')
+          
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          
+          # Strip "v" prefix from tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          
+          # Use Docker `latest` tag convention
+          [ "$VERSION" == "main" ] && VERSION=latest
+          
+          echo NGINX_IMAGE_ID=$NGINX_IMAGE_ID
+          echo VERSION=$VERSION
+          
+          docker tag $NGINX_IMAGE_NAME $NGINX_IMAGE_ID:$VERSION
+          docker push $NGINX_IMAGE_ID:$VERSION
