@@ -36,6 +36,7 @@ jobs:
             docker-compose --file docker-compose.test.yml build
             docker-compose --file docker-compose.test.yml run sut
           else
+            cd flask_app
             docker build . --file Dockerfile
           fi
           
