@@ -57,11 +57,6 @@
           <br>
           <button id="callExtractInfo" name="estrazioneInfoService" onclick="extractInfo()">Estrai Label e
             Query</button>
-          <br>
-          <br>
-          <br>
-          <button id="extractInfoExcel" name="risultatoEstrazioneInfO" onclick="downloadExcelInfo()" hidden>Download
-            Excel File</button>
         </center>
       </div>
 
@@ -102,7 +97,6 @@
             .then(response => response.text())
             .then(data => {
               console.log('Success:', data);
-              document.getElementById("extractInfoExcel").hidden = false;
               var bs = atob(data);
               var buffer = new ArrayBuffer(bs.length);
               var ba = new Uint8Array(buffer);
@@ -120,6 +114,8 @@
               a.href = url;
               a.download = 'prova.xlsx';
               a.click();
+              sessionStorage.removeItem("ontoBase64");
+              sessionStorage.removeItem("conceptsBase64");
             })
             //Then with the error genereted...
             .catch((error) => {
