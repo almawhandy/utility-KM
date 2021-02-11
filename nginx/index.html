@@ -5,201 +5,271 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <style>
-body {font-family: "Times New Roman", Georgia, Serif;}
-h1, h2, h3, h4, h5, h6 {
-  font-family: "Playfair Display";
-  letter-spacing: 5px;
-}
+  body {
+    font-family: "Times New Roman", Georgia, Serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Playfair Display";
+    letter-spacing: 5px;
+  }
 </style>
+
 <body>
 
-<!-- Navbar (sit on top) -->
-<div class="w3-top">
-  <div class="w3-bar w3-white w3-padding w3-card" style="letter-spacing:4px;">
-    <a href="#homepage" class="w3-bar-item w3-button">Utility-KM</a>
-    <!-- Right-sided navbar links. Hide them on small screens -->
-    <div class="w3-right w3-hide-small">
-      <a href="#extractInfo" class="w3-bar-item w3-button">Estrazione Info</a>
-      <a href="#testConcetti"f class="w3-bar-item w3-button">Test Concetti</a>
-      <a href="#testEntita" class="w3-bar-item w3-button">Test Entità</a>
+  <!-- Navbar (sit on top) -->
+  <div class="w3-top">
+    <div class="w3-bar w3-white w3-padding w3-card" style="letter-spacing:4px;">
+      <a href="#homepage" class="w3-bar-item w3-button">Utility-KM</a>
+      <!-- Right-sided navbar links. Hide them on small screens -->
+      <div class="w3-right w3-hide-small">
+        <a href="#extractInfo" class="w3-bar-item w3-button">Estrazione Info</a>
+        <a href="#testConcetti" f class="w3-bar-item w3-button">Test Concetti</a>
+        <a href="#testEntita" class="w3-bar-item w3-button">Test Entità</a>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- Header -->
-<header class="w3-display-container w3-content w3-wide" style="max-width:1600px;min-width:500px" id="homepage">
-  <img class="w3-image" src="src/wallpaper.jpg" alt="wallpaper" width="1600">
-</header>
+  <!-- Header -->
+  <header class="w3-display-container w3-content w3-wide" style="max-width:1600px;min-width:500px" id="homepage">
+    <img class="w3-image" src="src/wallpaper.jpg" alt="wallpaper" width="1600">
+  </header>
 
-<!-- Page content -->
-<div class="w3-content" style="max-width:1100px">
+  <!-- Page content -->
+  <div class="w3-content" style="max-width:1100px">
 
-  <!-- Estrazione Info Section -->
-  <div class="w3-row w3-padding-64" id="extractInfo">
-    <div class="w3-col m6 w3-padding-large w3-hide-small">
+    <!-- Estrazione Info Section -->
+    <div class="w3-row w3-padding-64" id="extractInfo">
+      <div class="w3-col m6 w3-padding-large w3-hide-small">
         <br>
         <br>
         <center>
-          <label>LISTA CONCETTI :<input type="file" id="conceptsList" name="listaConcetti" accept=".txt" ></label>
+          <label>LISTA CONCETTI :<input type="file" id="conceptsList" name="listaConcetti" accept=".txt"></label>
           <br>
           <br>
           <label>ONTOLOGIA :<input type="file" id="ontology" name="ontologia" accept=".owl" required></label>
           <br>
           <br>
-          <button id="callExtractInfo" name="estrazioneInfoService" onclick="extractInfo()">Estrai Label e Query</button>
+          <button id="callExtractInfo" name="estrazioneInfoService" onclick="extractInfo()">Estrai Label e
+            Query</button>
           <br>
           <br>
           <br>
-          <button id="extractInfoExcel" name="risultatoEstrazioneInfO" hidden>Download Excel File</button>
+          <button id="extractInfoExcel" name="risultatoEstrazioneInfO" onclick="downloadExcelInfo()" hidden>Download
+            Excel File</button>
         </center>
-    </div>
+      </div>
 
-    <script>
-      function extractInfo() {
-        var ontoReader = new FileReader();
-        var onto = document.getElementById("ontology").files;
-        ontoReader.onloadend = function () {
-          var ontoBase64 = ontoReader.result.split(",")[1];
-          console.log(ontoBase64);
+      <script>
+        function extractInfo() {
+          var ontoReader = new FileReader();
+          var onto = document.getElementById("ontology").files[0];
+          
+          ontoReader.onloadend = function () {
+            var ontoBase64 = ontoReader.result.split(",")[1];
+            sessionStorage.setItem("ontoBase64", ontoBase64);
+          }
+
+          ontoReader.readAsDataURL(onto);
+
+          var conceptsReader = new FileReader();
+          var concepts = document.getElementById("conceptsList").files[0];
+
+          if (typeof (concepts) !== "undefined") {
+              conceptsReader.readAsDataURL(concepts);
+          }
+
+          conceptsReader.onloadend = function () {
+            var conceptsBase64 = conceptsReader.result.split(",")[1];
+            sessionStorage.setItem("conceptsBase64", conceptsBase64);
+          }
+
+          const data = {
+            ontology: String(sessionStorage.getItem("ontoBase64")),
+            conceptsList: String(sessionStorage.getItem("conceptsBase64"))
+          };
+          //POST request with body equal on data in JSON format
+          fetch('http://localhost/extractInfo', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data),
+          })
+            .then(response => response.text())
+            .then(data => {
+              console.log('Success:', data);
+              document.getElementById("extractInfoExcel").hidden = false;
+              var bs = atob(data);
+              var buffer = new ArrayBuffer(bs.length);
+              var ba = new Uint8Array(buffer);
+              for (var i = 0; i < bs.length; i++) {
+                  ba[i] = bs.charCodeAt(i);
+              }
+              var file = new Blob([ba], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sh" });
+
+              var a = document.createElement("a");
+
+              document.body.appendChild(a);
+
+              a.style = "display: none";
+              url = window.URL.createObjectURL(file);
+              a.href = url;
+              a.download = 'prova.xlsx';
+              a.click();
+            })
+            //Then with the error genereted...
+            .catch((error) => {
+              console.error('Error:', error);
+            });
+
+
+          
         }
-        ontoReader.readAsDataURL(onto[0]);
-        var concepts = document.getElementById("conceptsList").files;
-        var conceptsReader = new FileReader();
-        conceptsReader.onloadend = function () {
-          var conceptsBase64 = conceptsReader.result.split(",")[1];
-          console.log(conceptsBase64);
-        }
-        if(typeof(concepts[0]) !== "undefined"){
-          conceptsReader.readAsDataURL(concepts[0]);
-        }
-        document.getElementById("extractInfoExcel").hidden = false;
-      }
 
 
-      
-    </script>
 
-    <div class="w3-col m6 w3-padding-large">
-      <h1 class="w3-center">Estrazione Info</h1><br>
-      <h5 class="w3-center"><span class="w3-tag w3-light-grey">Label</span> e <span class="w3-tag w3-light-grey">query</span> relative ad un concetto</h5>
-      <p class="w3-large">Il servizio accetta due parametri in input. Un file .txt contenente la lista di concetti ed un file .owl relativo all'ontologia da analizzare.
-          Una volta che sarà terminata l'esecuzione del servizio, comparirà un bottone per scaricare il file excel generato con le seguenti colonne:
-          <ul>
-            <li>CONCETTO : nome identificativo del concetto</li>
-            <li>LISTA DI LABEL : Lista di label associate al concetto</li>
-            <li>QUERY : Query relativa al concetto</li>
-          </ul>
+      </script>
+
+      <div class="w3-col m6 w3-padding-large">
+        <h1 class="w3-center">Estrazione Info</h1><br>
+        <h5 class="w3-center"><span class="w3-tag w3-light-grey">Label</span> e <span
+            class="w3-tag w3-light-grey">query</span> relative ad un concetto</h5>
+        <p class="w3-large">Il servizio accetta due parametri in input. Un file .txt contenente la lista di concetti ed
+          un file .owl relativo all'ontologia da analizzare.
+          Una volta che sarà terminata l'esecuzione del servizio, comparirà un bottone per scaricare il file excel
+          generato con le seguenti colonne:
+        <ul>
+          <li>CONCETTO : nome identificativo del concetto</li>
+          <li>LISTA DI LABEL : Lista di label associate al concetto</li>
+          <li>QUERY : Query relativa al concetto</li>
+        </ul>
         </p>
+      </div>
     </div>
-  </div>
-  
-  <hr>
-  
-  <!-- Test Concetti Section -->
-  <div class="w3-row w3-padding-64" id="testConcetti">
-    <div class="w3-col l6 w3-padding-large">
-      <h1 class="w3-center">Test Concetti</h1><br>
-      <h5 class="w3-center">Analisi di un <span class="w3-tag w3-light-grey">concetto</span> in una <span class="w3-tag w3-light-grey">frase</span></h5>
-      Il servizio accetta un singolo parametro corrispondente al file excel da analizzare.
+
+    <hr>
+
+    <!-- Test Concetti Section -->
+    <div class="w3-row w3-padding-64" id="testConcetti">
+      <div class="w3-col l6 w3-padding-large">
+        <h1 class="w3-center">Test Concetti</h1><br>
+        <h5 class="w3-center">Analisi di un <span class="w3-tag w3-light-grey">concetto</span> in una <span
+            class="w3-tag w3-light-grey">frase</span></h5>
+        Il servizio accetta un singolo parametro corrispondente al file excel da analizzare.
         Il file excel dovrà presentare 4 colonne con valore :
         <ul>
-            <li>CONCETTO : nome identificativo del concetto che si intende testare</li>
-            <li>FRASE : porzione di testo in cui si vuole ricercare o meno il concetto</li>
-            <li>ONTOLOGIA : Può essere un singolo valore oppure più valori separati da virgola</li>
-            <li>RISULTATO ATTESO : Può assumere i valori OK/KO. OK se il concetto deve essere trovato nella frase, KO altrimenti</li>
+          <li>CONCETTO : nome identificativo del concetto che si intende testare</li>
+          <li>FRASE : porzione di testo in cui si vuole ricercare o meno il concetto</li>
+          <li>ONTOLOGIA : Può essere un singolo valore oppure più valori separati da virgola</li>
+          <li>RISULTATO ATTESO : Può assumere i valori OK/KO. OK se il concetto deve essere trovato nella frase, KO
+            altrimenti</li>
         </ul>
         Una volta che sarà terminata l'esecuzione del servizio, comparirà un bottone per scaricare il nuovo file excel.
         Nello specifico, al file excel passato in input, verranno aggiunte le seguenti colonne:
         <ul>
-            <li>CONCETTO RILEVATO: nome identificativo del concetto che si sta analizzando</li>
-            <li>RISULTATO : Può assumere i valori OK/KO a seconda dell'avvenuta rilevazione o meno del concetto nella frase, entrambi parametri forniti nel file excel di input</li>
+          <li>CONCETTO RILEVATO: nome identificativo del concetto che si sta analizzando</li>
+          <li>RISULTATO : Può assumere i valori OK/KO a seconda dell'avvenuta rilevazione o meno del concetto nella
+            frase, entrambi parametri forniti nel file excel di input</li>
         </ul>
-    </div>
-    
-    <div class="w3-col l6 w3-padding-large">
+      </div>
+
+      <div class="w3-col l6 w3-padding-large">
         <br>
         <br>
         <center>
-            <form action="/action_page.php">
-                <label>EXCEL CON CONCETTI:<input type="file" id="excelConcepts" name="concettiExcel" accept=".xls" required></label>
-                <br>
-                <br>
-                <input type="submit">
-            </form>
+          <form action="/action_page.php">
+            <label>EXCEL CON CONCETTI:<input type="file" id="excelConcepts" name="concettiExcel" accept=".xls"
+                required></label>
             <br>
             <br>
-            <br>
-            <button id="testConcettiExcel" name="risultatoTestConcetti">Download Excel File</button>
-            <script>
-                if (new Date().getHours() < 12) {
-                    document.getElementById("testConcettiExcel").hidden = true;
-                }
-            </script>
+            <input type="submit">
+          </form>
+          <br>
+          <br>
+          <br>
+          <button id="testConcettiExcel" name="risultatoTestConcetti">Download Excel File</button>
+          <script>
+            if (new Date().getHours() < 12) {
+              document.getElementById("testConcettiExcel").hidden = true;
+            }
+          </script>
         </center>
+      </div>
     </div>
-  </div>
 
-  <hr>
+    <hr>
 
-  <!-- Estrazione Info Section -->
-  <div class="w3-row w3-padding-64" id="testEntita">
-    <div class="w3-col m6 w3-padding-large w3-hide-small">
+    <!-- Estrazione Info Section -->
+    <div class="w3-row w3-padding-64" id="testEntita">
+      <div class="w3-col m6 w3-padding-large w3-hide-small">
         <br>
         <br>
         <center>
-            <form action="/action_page.php">
-                <label>EXCEL CON ENTITA' :<input type="file" id="excelEntities" name="entitaExcel" accept=".xls" required></label>
-                <br>
-                <br>
-                <input type="submit">
-            </form>
+          <form action="/action_page.php">
+            <label>EXCEL CON ENTITA' :<input type="file" id="excelEntities" name="entitaExcel" accept=".xls"
+                required></label>
             <br>
             <br>
-            <br>
-            <button id="testEntitaExcel" name="risultatoTestEntita">Download Excel File</button>
-            <script>
-                if (new Date().getHours() < 18) {
-                    document.getElementById("testEntitaExcel").hidden = true;
-                }
-            </script>
+            <input type="submit">
+          </form>
+          <br>
+          <br>
+          <br>
+          <button id="testEntitaExcel" name="risultatoTestEntita">Download Excel File</button>
+          <script>
+            if (new Date().getHours() < 18) {
+              document.getElementById("testEntitaExcel").hidden = true;
+            }
+          </script>
         </center>
-    </div>
+      </div>
 
-    <div class="w3-col m6 w3-padding-large">
-      <h1 class="w3-center">Test Entita</h1><br>
-      <h5 class="w3-center">Analisi di una <span class="w3-tag w3-light-grey">entità</span> in una <span class="w3-tag w3-light-grey">frase</span></h5>
-      <p class="w3-large">Il servizio accetta un singolo parametro corrispondente al file excel da analizzare.
-        Il file excel dovrà presentare quattro colonne con valore :
+      <div class="w3-col m6 w3-padding-large">
+        <h1 class="w3-center">Test Entita</h1><br>
+        <h5 class="w3-center">Analisi di una <span class="w3-tag w3-light-grey">entità</span> in una <span
+            class="w3-tag w3-light-grey">frase</span></h5>
+        <p class="w3-large">Il servizio accetta un singolo parametro corrispondente al file excel da analizzare.
+          Il file excel dovrà presentare quattro colonne con valore :
+        <ul>
+          <li>ENTITA : entità che si intende testare</li>
+          <li>FRASE : porzione di testo in cui si vuole ricercare o meno l'entità</li>
+          <li>TIPO : Indica la tipologia dell'entità (Person, Location, Organization)</li>
+          <li>RISULTATO ATTESO : Può assumere i valori OK/KO. OK se il concetto deve essere trovato nella frase, KO
+            altrimenti.</li>
+        </ul>
+        Una volta che sarà terminata l'esecuzione del servizio, comparirà un bottone per scaricare il nuovo file excel.
+        Nello specifico, al file excel passato in input, verranno aggiunte le seguenti colonne:
+        <ul>
+          <li>ENTITA RILEVATA: Indica l'entità estratta dalla frase. Può essere vuota, contenere un singolo valore o
+            contenere più valori separati da virgola (ordinati secondo una metrica di similarità). Esempio di
+            funzionamento :
             <ul>
-                <li>ENTITA : entità che si intende testare</li>
-                <li>FRASE : porzione di testo in cui si vuole ricercare o meno l'entità</li>
-                <li>TIPO : Indica la tipologia dell'entità (Person, Location, Organization)</li>
-                <li>RISULTATO ATTESO : Può assumere i valori OK/KO. OK se il concetto deve essere trovato nella frase, KO altrimenti.</li>
+              <li>se il risultato atteso è un OK e si ottiene un OK allora viene mostrata l'entità rilevata</li>
+              <li>se il risultato atteso è un OK e si ottiene un KO allora viene mostrata la lista delle entità rilevate
+                ordinata per score</li>
+              <li>se il risultato atteso è un KO e si ottiene un OK allora viene mostrata l'entità rilevata</li>
+              <li>se il risultato atteso è un KO e si ottiene un KO non sarà riportata alcuna entità</li>
             </ul>
-            Una volta che sarà terminata l'esecuzione del servizio, comparirà un bottone per scaricare il nuovo file excel.
-            Nello specifico, al file excel passato in input, verranno aggiunte le seguenti colonne:
-            <ul>
-                <li>ENTITA RILEVATA: Indica l'entità estratta dalla frase. Può essere vuota, contenere un singolo valore o contenere più valori separati da virgola (ordinati secondo una metrica di similarità). Esempio di funzionamento :
-                    <ul>
-                        <li>se il risultato atteso è un OK e si ottiene un OK allora viene mostrata l'entità rilevata</li>
-                        <li>se il risultato atteso è un OK e si ottiene un KO allora viene mostrata la lista delle entità rilevate ordinata per score</li>
-                        <li>se il risultato atteso è un KO e si ottiene un OK allora viene mostrata l'entità rilevata</li>
-                        <li>se il risultato atteso è un KO e si ottiene un KO non sarà riportata alcuna entità</li>
-                    </ul>
-                </li>
-                <li>RISULTATO : Può assumere i valori OK/KO a seconda dell'avvenuta rilevazione o meno dell'entità nella frase, entrambi parametri forniti nel file excel di input</li>
-            </ul>
+          </li>
+          <li>RISULTATO : Può assumere i valori OK/KO a seconda dell'avvenuta rilevazione o meno dell'entità nella
+            frase, entrambi parametri forniti nel file excel di input</li>
+        </ul>
         </p>
+      </div>
     </div>
-  </div>
-  
-<!-- End page content -->
-</div>
 
-<!-- Footer -->
-<footer class="w3-center w3-light-grey w3-padding-32">
-  <p>Almawave - Utility-KM</p>
-</footer>
+    <!-- End page content -->
+  </div>
+
+  <!-- Footer -->
+  <footer class="w3-center w3-light-grey w3-padding-32">
+    <p>Almawave - Utility-KM</p>
+  </footer>
 
 </body>
+
 </html>

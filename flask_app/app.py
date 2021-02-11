@@ -1,5 +1,5 @@
 from flask import Flask, request
-
+from flask_cors import CORS, cross_origin
 from owlready2 import *
 import io
 import pandas as pd
@@ -11,11 +11,12 @@ from Estrazione.extract_info import ScriptEstrazione
 
 
 app = Flask(__name__)
-
-
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 
 @app.route("/extractInfo", methods=['GET', 'POST'])
+@cross_origin()
 def extract_info():
     se = ScriptEstrazione()
     ontology_base64 = request.get_json()['ontology']
