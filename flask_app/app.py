@@ -47,7 +47,9 @@ def extract_info():
     return excel_base64
 
 @app.route("/testConcetti", methods=['GET', 'POST'])
+@cross_origin()
 def testConcetti():
+    print("INIZIO testConcetti")
     to = TestOntology()
     credentials = {}
     excel_base64 = request.get_json()['base64']
@@ -71,9 +73,11 @@ def testConcetti():
     df.to_excel(towrite, index=False)
     towrite.seek(0)
     base64_bytes = base64.b64encode(towrite.getvalue())
+    print("FINE testConcetti")
     return base64_bytes
 
 @app.route("/testEntita", methods=['GET', 'POST'])
+@cross_origin()
 def testEntita():
     te = TestEntities()
     credentials = {}

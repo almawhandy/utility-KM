@@ -60,75 +60,7 @@
         </center>
       </div>
 
-      <script>
-        function extractInfo() {
-          var ontoReader = new FileReader();
-          var onto = document.getElementById("ontology").files[0];
-          
-          ontoReader.onloadend = function () {
-            var ontoBase64 = ontoReader.result.split(",")[1];
-            sessionStorage.setItem("ontoBase64", ontoBase64);
-          }
 
-          ontoReader.readAsDataURL(onto);
-
-          var conceptsReader = new FileReader();
-          var concepts = document.getElementById("conceptsList").files[0];
-
-          if (typeof (concepts) !== "undefined") {
-              conceptsReader.readAsDataURL(concepts);
-          }
-
-          conceptsReader.onloadend = function () {
-            var conceptsBase64 = conceptsReader.result.split(",")[1];
-            sessionStorage.setItem("conceptsBase64", conceptsBase64);
-          }
-
-          const data = {
-            ontology: String(sessionStorage.getItem("ontoBase64")),
-            conceptsList: String(sessionStorage.getItem("conceptsBase64"))
-          };
-          //POST request with body equal on data in JSON format
-          fetch('http://localhost/extractInfo', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(data),
-          })
-            .then(response => response.text())
-            .then(data => {
-              console.log('Success:', data);
-              var bs = atob(data);
-              var buffer = new ArrayBuffer(bs.length);
-              var ba = new Uint8Array(buffer);
-              for (var i = 0; i < bs.length; i++) {
-                  ba[i] = bs.charCodeAt(i);
-              }
-              var file = new Blob([ba], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sh" });
-
-              var a = document.createElement("a");
-
-              document.body.appendChild(a);
-
-              a.style = "display: none";
-              url = window.URL.createObjectURL(file);
-              a.href = url;
-              a.download = 'prova.xlsx';
-              a.click();
-              sessionStorage.removeItem("ontoBase64");
-              sessionStorage.removeItem("conceptsBase64");
-            })
-            //Then with the error genereted...
-            .catch((error) => {
-              console.error('Error:', error);
-            });
-
-
-          
-        }
-
-
-
-      </script>
 
       <div class="w3-col m6 w3-padding-large">
         <h1 class="w3-center">Estrazione Info</h1><br>
@@ -177,50 +109,35 @@
         <br>
         <br>
         <center>
-          <form action="/action_page.php">
-            <label>EXCEL CON CONCETTI:<input type="file" id="excelConcepts" name="concettiExcel" accept=".xls"
-                required></label>
-            <br>
-            <br>
-            <input type="submit">
-          </form>
+          <label>EXCEL CON CONCETTI:<input type="file" id="excelConcepts" name="concettiExcel" accept=".xls"
+              required></label>
           <br>
           <br>
+          <label>ENDPOINT: </label><textarea id="endpointConcepts" name="endpointConcetti" rows="1" cols="45"></textarea>
           <br>
-          <button id="testConcettiExcel" name="risultatoTestConcetti">Download Excel File</button>
-          <script>
-            if (new Date().getHours() < 12) {
-              document.getElementById("testConcettiExcel").hidden = true;
-            }
-          </script>
+          <br>
+          <button id="callTestConcepts" name="testConcettiService" onclick="testConcepts()">Test Concetti</button>
         </center>
       </div>
     </div>
 
     <hr>
 
-    <!-- Estrazione Info Section -->
+    <!-- Test Entita Section -->
     <div class="w3-row w3-padding-64" id="testEntita">
       <div class="w3-col m6 w3-padding-large w3-hide-small">
         <br>
         <br>
         <center>
-          <form action="/action_page.php">
-            <label>EXCEL CON ENTITA' :<input type="file" id="excelEntities" name="entitaExcel" accept=".xls"
-                required></label>
-            <br>
-            <br>
-            <input type="submit">
-          </form>
+          <label>EXCEL CON ENTITA' :<input type="file" id="excelEntities" name="entitaExcel" accept=".xls"
+              required></label>
           <br>
           <br>
+          <label>ENDPOINT: </label><textarea id="endpointEntities" name="endpointEntita" rows="1" cols="45"></textarea>
           <br>
-          <button id="testEntitaExcel" name="risultatoTestEntita">Download Excel File</button>
-          <script>
-            if (new Date().getHours() < 18) {
-              document.getElementById("testEntitaExcel").hidden = true;
-            }
-          </script>
+          <br>
+          </textarea>
+          <button id="callTestEntities" name="testEntitaService" onclick="testEntities()">Test Entità</button>
         </center>
       </div>
 
@@ -267,5 +184,165 @@
   </footer>
 
 </body>
+
+<script>
+
+  function testConcepts() {
+    var excelConceptsReader = new FileReader();
+    var excelConcepts = document.getElementById("excelConcepts").files[0];
+    excelConceptsReader.onloadend = function () {
+      var excelConceptsBase64 = excelConceptsReader.result.split(",")[1];
+      sessionStorage.setItem("excelConceptsBase64", excelConceptsBase64);
+    }
+
+    excelConceptsReader.readAsDataURL(excelConcepts);
+
+    const data = {
+      base64: sessionStorage.getItem("excelConceptsBase64"),
+      endpoint: document.getElementById("endpointConcepts").value
+    }
+
+    fetch('http://localhost/testConcetti', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Basic ' + btoa('iride:Iride.123'),
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data),
+    })
+      .then(response => response.text())
+      .then(data => {
+        console.log('Success: ', data);
+        var bs = atob(data);
+        var buffer = new ArrayBuffer(bs.length);
+        var ba = new Uint8Array(buffer);
+        for (var i = 0; i < bs.length; i++) {
+          ba[i] = bs.charCodeAt(i);
+        }
+        var file = new Blob([ba], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sh" });
+
+        var a = document.createElement("a");
+
+        document.body.appendChild(a);
+
+        a.style = "display: none";
+        url = window.URL.createObjectURL(file);
+        a.href = url;
+        a.download = 'testConcetti.xlsx';
+        a.click();
+        sessionStorage.removeItem("excelConceptsBase64");
+      })
+  }
+  function testEntities() {
+    var excelEntitiesReader = new FileReader();
+    var excelEntities = document.getElementById("excelEntities").files[0];
+
+    excelEntitiesReader.readAsDataURL(excelEntities);
+    excelEntitiesReader.onloadend = function () {
+      var excelEntitiesBase64 = excelEntitiesReader.result.split(",")[1];
+      sessionStorage.setItem("excelEntitiesBase64", excelEntitiesBase64);
+    }
+
+    const data = {
+      base64: sessionStorage.getItem("excelEntitiesBase64"),
+      endpoint: document.getElementById("endpointEntities").value
+    }
+
+    fetch('http://localhost/testEntita', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Basic ' + btoa('iride:Iride.123'),
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data),
+    })
+      .then(response => response.text())
+      .then(data => {
+        console.log('Success: ', data);
+        var bs = atob(data);
+        var buffer = new ArrayBuffer(bs.length);
+        var ba = new Uint8Array(buffer);
+        for (var i = 0; i < bs.length; i++) {
+          ba[i] = bs.charCodeAt(i);
+        }
+        var file = new Blob([ba], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sh" });
+
+        var a = document.createElement("a");
+
+        document.body.appendChild(a);
+
+        a.style = "display: none";
+        url = window.URL.createObjectURL(file);
+        a.href = url;
+        a.download = 'testEntita.xlsx';
+        a.click();
+        sessionStorage.removeItem("excelEntitiesBase64");
+      })
+  }
+  function extractInfo() {
+    var ontoReader = new FileReader();
+    var onto = document.getElementById("ontology").files[0];
+
+    ontoReader.onloadend = function () {
+      var ontoBase64 = ontoReader.result.split(",")[1];
+      sessionStorage.setItem("ontoBase64", ontoBase64);
+    }
+
+    ontoReader.readAsDataURL(onto);
+
+    var conceptsReader = new FileReader();
+    var concepts = document.getElementById("conceptsList").files[0];
+
+    if (typeof (concepts) !== "undefined") {
+      conceptsReader.readAsDataURL(concepts);
+    }
+
+    conceptsReader.onloadend = function () {
+      var conceptsBase64 = conceptsReader.result.split(",")[1];
+      sessionStorage.setItem("conceptsBase64", conceptsBase64);
+    }
+
+    const data = {
+      ontology: String(sessionStorage.getItem("ontoBase64")),
+      conceptsList: String(sessionStorage.getItem("conceptsBase64"))
+    };
+    //POST request with body equal on data in JSON format
+    fetch('http://localhost/extractInfo', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+      .then(response => response.text())
+      .then(data => {
+        console.log('Success:', data);
+        var bs = atob(data);
+        var buffer = new ArrayBuffer(bs.length);
+        var ba = new Uint8Array(buffer);
+        for (var i = 0; i < bs.length; i++) {
+          ba[i] = bs.charCodeAt(i);
+        }
+        var file = new Blob([ba], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sh" });
+
+        var a = document.createElement("a");
+
+        document.body.appendChild(a);
+
+        a.style = "display: none";
+        url = window.URL.createObjectURL(file);
+        a.href = url;
+        a.download = 'prova.xlsx';
+        a.click();
+        sessionStorage.removeItem("ontoBase64");
+        sessionStorage.removeItem("conceptsBase64");
+      })
+      //Then with the error genereted...
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+
+
+
+  }
+</script>
 
 </html>
