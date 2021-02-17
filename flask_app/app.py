@@ -8,11 +8,15 @@ import os
 from TestConcetti.testConcetti import TestOntology
 from TestEntita.testEntita import TestEntities
 from Estrazione.extract_info import ScriptEstrazione
+from jproperties import Properties
+
 
 
 app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
+
+configs = Properties()
 
 
 @app.route("/extractInfo", methods=['GET', 'POST'])
@@ -64,8 +68,11 @@ def testConcetti():
     ontologies = df['ONTOLOGIA'].values.tolist()
     if len(concepts) != len(sentences):
         raise Exception("Il numero di frasi non corrisponde al numero di concetti. Controllare il file Excel.") 
-    credentials['username'] = request.authorization['username']
-    credentials['password'] = request.authorization['password']
+
+    with open('credentials.properties', 'rb') as config_file:
+        configs.load(config_file)
+    credentials['username'] = configs.get("username").data
+    credentials['password'] = configs.get("password").data
     responses = to.check_responses(concepts, sentences, ontologies, credentials, endpoint)
     df['CONCETTO RILEVATO'] = concepts
     df['RISULTATO'] = responses
@@ -94,8 +101,10 @@ def testEntita():
     expected_results = df['RISULTATO ATTESO'].values.tolist()
     if len(entities) != len(sentences):
         raise Exception("Il numero di frasi non corrisponde al numero di concetti. Controllare il file Excel.") 
-    credentials['username'] = request.authorization['username']
-    credentials['password'] = request.authorization['password']
+    with open('credentials.properties', 'rb') as config_file:
+        configs.load(config_file)
+    credentials['username'] = configs.get("username").data
+    credentials['password'] = configs.get("password").data
     retrieved_entities, responses = te.check_responses(entities, types, sentences, expected_results, credentials, endpoint)
     for i in range(len(expected_results)):
         if expected_results[i] == 'KO' and responses == 'KO':

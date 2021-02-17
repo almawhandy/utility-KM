@@ -87,7 +87,8 @@
         <h1 class="w3-center">Test Concetti</h1><br>
         <h5 class="w3-center">Analisi di un <span class="w3-tag w3-light-grey">concetto</span> in una <span
             class="w3-tag w3-light-grey">frase</span></h5>
-        Il servizio accetta un singolo parametro corrispondente al file excel da analizzare.
+        Il servizio accetta due parametri in input. Un file excel da analizzare e l'endpoint della macchina dove
+        richiamare il servizio di AnalyzedDocument.
         Il file excel dovrà presentare 4 colonne con valore :
         <ul>
           <li>CONCETTO : nome identificativo del concetto che si intende testare</li>
@@ -113,7 +114,8 @@
               required></label>
           <br>
           <br>
-          <label>ENDPOINT: </label><textarea id="endpointConcepts" name="endpointConcetti" rows="1" cols="45"></textarea>
+          <label>ENDPOINT: </label><textarea id="endpointConcepts" name="endpointConcetti"
+            rows="1" cols="45">http://10.121.172.61:8080/km-guardiafinanza2-api</textarea>
           <br>
           <br>
           <button id="callTestConcepts" name="testConcettiService" onclick="testConcepts()">Test Concetti</button>
@@ -133,7 +135,8 @@
               required></label>
           <br>
           <br>
-          <label>ENDPOINT: </label><textarea id="endpointEntities" name="endpointEntita" rows="1" cols="45"></textarea>
+          <label>ENDPOINT: </label><textarea id="endpointEntities" name="endpointEntita"
+            rows="1" cols="45">http://10.121.172.61:8080/km-guardiafinanza2-api</textarea>
           <br>
           <br>
           </textarea>
@@ -145,7 +148,8 @@
         <h1 class="w3-center">Test Entita</h1><br>
         <h5 class="w3-center">Analisi di una <span class="w3-tag w3-light-grey">entità</span> in una <span
             class="w3-tag w3-light-grey">frase</span></h5>
-        <p class="w3-large">Il servizio accetta un singolo parametro corrispondente al file excel da analizzare.
+        <p class="w3-large">Il servizio accetta due parametri in input. Un file excel da analizzare e l'endpoint della
+          macchina dove richiamare il servizio di AnalyzedDocument. .
           Il file excel dovrà presentare quattro colonne con valore :
         <ul>
           <li>ENTITA : entità che si intende testare</li>
