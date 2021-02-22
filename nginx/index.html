@@ -114,8 +114,8 @@
               required></label>
           <br>
           <br>
-          <label>ENDPOINT: </label><textarea id="endpointConcepts" name="endpointConcetti"
-            rows="1" cols="45">http://10.121.172.61:8080/km-guardiafinanza2-api</textarea>
+          <label>ENDPOINT: </label><textarea id="endpointConcepts" name="endpointConcetti" rows="1"
+            cols="45">http://10.121.172.61:8080/km-guardiafinanza2-api</textarea>
           <br>
           <br>
           <button id="callTestConcepts" name="testConcettiService" onclick="testConcepts()">Test Concetti</button>
@@ -135,8 +135,8 @@
               required></label>
           <br>
           <br>
-          <label>ENDPOINT: </label><textarea id="endpointEntities" name="endpointEntita"
-            rows="1" cols="45">http://10.121.172.61:8080/km-guardiafinanza2-api</textarea>
+          <label>ENDPOINT: </label><textarea id="endpointEntities" name="endpointEntita" rows="1"
+            cols="45">http://10.121.172.61:8080/km-guardiafinanza2-api</textarea>
           <br>
           <br>
           </textarea>
@@ -196,46 +196,40 @@
     var excelConcepts = document.getElementById("excelConcepts").files[0];
     excelConceptsReader.onloadend = function () {
       var excelConceptsBase64 = excelConceptsReader.result.split(",")[1];
-      sessionStorage.setItem("excelConceptsBase64", excelConceptsBase64);
-    }
-
-    excelConceptsReader.readAsDataURL(excelConcepts);
-
-    const data = {
-      base64: sessionStorage.getItem("excelConceptsBase64"),
-      endpoint: document.getElementById("endpointConcepts").value
-    }
-
-    fetch('http://localhost/testConcetti', {
-      method: 'POST',
-      headers: {
-        'Authorization': 'Basic ' + btoa('iride:Iride.123'),
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data),
-    })
-      .then(response => response.text())
-      .then(data => {
-        console.log('Success: ', data);
-        var bs = atob(data);
-        var buffer = new ArrayBuffer(bs.length);
-        var ba = new Uint8Array(buffer);
-        for (var i = 0; i < bs.length; i++) {
-          ba[i] = bs.charCodeAt(i);
-        }
-        var file = new Blob([ba], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sh" });
-
-        var a = document.createElement("a");
-
-        document.body.appendChild(a);
-
-        a.style = "display: none";
-        url = window.URL.createObjectURL(file);
-        a.href = url;
-        a.download = 'testConcetti.xlsx';
-        a.click();
-        sessionStorage.removeItem("excelConceptsBase64");
+      const data = {
+        base64: excelConceptsBase64,
+        endpoint: document.getElementById("endpointConcepts").value
+      }
+      fetch('http://localhost/testConcetti', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data),
       })
+        .then(response => response.text())
+        .then(data => {
+          console.log('Success: ', data);
+          var bs = atob(data);
+          var buffer = new ArrayBuffer(bs.length);
+          var ba = new Uint8Array(buffer);
+          for (var i = 0; i < bs.length; i++) {
+            ba[i] = bs.charCodeAt(i);
+          }
+          var file = new Blob([ba], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sh" });
+
+          var a = document.createElement("a");
+
+          document.body.appendChild(a);
+
+          a.style = "display: none";
+          url = window.URL.createObjectURL(file);
+          a.href = url;
+          a.download = 'testConcetti.xlsx';
+          a.click();
+        })
+    }
+    excelConceptsReader.readAsDataURL(excelConcepts);
   }
   function testEntities() {
     var excelEntitiesReader = new FileReader();
@@ -244,44 +238,40 @@
     excelEntitiesReader.readAsDataURL(excelEntities);
     excelEntitiesReader.onloadend = function () {
       var excelEntitiesBase64 = excelEntitiesReader.result.split(",")[1];
-      sessionStorage.setItem("excelEntitiesBase64", excelEntitiesBase64);
-    }
+      const data = {
+        base64: excelEntitiesBase64,
+        endpoint: document.getElementById("endpointEntities").value
+      }
 
-    const data = {
-      base64: sessionStorage.getItem("excelEntitiesBase64"),
-      endpoint: document.getElementById("endpointEntities").value
-    }
-
-    fetch('http://localhost/testEntita', {
-      method: 'POST',
-      headers: {
-        'Authorization': 'Basic ' + btoa('iride:Iride.123'),
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data),
-    })
-      .then(response => response.text())
-      .then(data => {
-        console.log('Success: ', data);
-        var bs = atob(data);
-        var buffer = new ArrayBuffer(bs.length);
-        var ba = new Uint8Array(buffer);
-        for (var i = 0; i < bs.length; i++) {
-          ba[i] = bs.charCodeAt(i);
-        }
-        var file = new Blob([ba], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sh" });
-
-        var a = document.createElement("a");
-
-        document.body.appendChild(a);
-
-        a.style = "display: none";
-        url = window.URL.createObjectURL(file);
-        a.href = url;
-        a.download = 'testEntita.xlsx';
-        a.click();
-        sessionStorage.removeItem("excelEntitiesBase64");
+      fetch('http://localhost/testEntita', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data),
       })
+        .then(response => response.text())
+        .then(data => {
+          console.log('Success: ', data);
+          var bs = atob(data);
+          var buffer = new ArrayBuffer(bs.length);
+          var ba = new Uint8Array(buffer);
+          for (var i = 0; i < bs.length; i++) {
+            ba[i] = bs.charCodeAt(i);
+          }
+          var file = new Blob([ba], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sh" });
+
+          var a = document.createElement("a");
+
+          document.body.appendChild(a);
+
+          a.style = "display: none";
+          url = window.URL.createObjectURL(file);
+          a.href = url;
+          a.download = 'testEntita.xlsx';
+          a.click();
+        })
+    }
   }
   function extractInfo() {
     var ontoReader = new FileReader();
